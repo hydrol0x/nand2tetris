@@ -1,0 +1,40 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/DMux8Way.hdl
+
+/**
+ * 8-way demultiplexor:
+ * {a, b, c, d, e, f, g, h} = {in, 0, 0, 0, 0, 0, 0, 0} if sel == 000
+ *                            {0, in, 0, 0, 0, 0, 0, 0} if sel == 001
+ *                            etc.
+ *                            {0, 0, 0, 0, 0, 0, 0, in} if sel == 111
+ */
+
+CHIP DMux8Way {
+    IN in, sel[3];
+    OUT a, b, c, d, e, f, g, h;
+
+    PARTS:
+    // Put your code here:
+    // Define nSel
+    Not(in=sel[2], out=nSel);
+    
+    // figure out which section in groups 1 and 2 gets input. Notation is Group1_letter-Group2_letter (i.e ae)
+    DMux4Way(in=in, sel=sel[0..1], a=ae, b=bf, c=cg, d=dh);
+
+
+    // Figure out whether group 1 or group 2 side gets output
+
+    // logic for ABCD
+    And(a=ae, b=nSel, out=a);
+    And(a=bf, b=nSel, out=b);
+    And(a=cg, b=nSel, out=c);
+    And(a=dh, b=nSel, out=d);
+
+    // logic for EFGH
+    And(a=ae, b=sel[2], out=e);
+    And(a=bf, b=sel[2], out=f);
+    And(a=cg, b=sel[2], out=g);
+    And(a=dh, b=sel[2], out=h);
+}

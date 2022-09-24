@@ -10,3 +10,39 @@
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
 // Put your code here.
+
+// R0 * R1 -> R2
+
+@i // A is some mem location called i
+M = 0 // i=1
+// R2 is the address storing the product
+@R2
+M = 0
+
+// Add R1 to itself R0 times
+(LOOP)
+    // Find out if we still run loop
+    @i
+    D = M
+    @R0
+    // D = Mem[R0] - i
+    D = M - D 
+
+    // if D == 0: Break loop
+    @END
+    D;JEQ
+
+    // else
+    @R1
+    D = M // D = val to add
+    @R2
+    M = M + D  // R2 = R2 + Mem[R1]
+
+    @i
+    M = M+1
+    @LOOP
+    0;JMP
+
+(END)
+    @END
+    0;JMP

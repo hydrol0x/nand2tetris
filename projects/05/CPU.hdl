@@ -29,6 +29,10 @@ CHIP CPU {
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
         instruction[16], // Instruction for execution
+        // ixxaccccccdddjjj
+        // i - op code
+        // C instruction ---
+        // 
         reset;           // Signals whether to re-start the current
                          // program (reset==1) or continue executing
                          // the current program (reset==0).
@@ -40,4 +44,45 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+   
+    // Handle instruction
+    Not(in=instruction[15], out=NotInstructionControlBit);
+    // NOT control bit OR   control bit AND not ALU Out
+    // Not(in=instruction[5], out=notAReg); // instruction[5] is A register write
+    // And(a=instruction[15], b=notAReg, out=cbitANDnotAReg);
+    // Or(a=NotInstructionControlBit, b=cbitANDnotAReg, out=ARegWriteSelector);
+    Mux16(a=ALUOut, b=instruction, sel=NotInstructionControlBit, out=toAReg);
+
+    And(a=instruction[5], b=instruction[15], out=ARegWriteANDcbit);
+    Or(a=NotInstructionControlBit, b=ARegWriteANDcbit, out=writeA);
+    ARegister(in=toAReg, load=writeA, out[0..14]=addressM, out=ARegOut); // A reg -> mux16 -> ALU     A reg -> PC      A reg -> adressM
+
+    And(a=instruction[15], b=instruction[4], out=writeD); // C instruction and Write D
+    DRegister(in=ALUOut, load=writeD, out=DRegOut);
+    // calcualte writeM baed on ddd bits
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+
+    // InM and A register into ALU
+    Mux16(a=ARegOut, b=inM, sel=instruction[12], out=AorInM/* somewhere into alu */);
+
+    ALU(x=DRegOut, y=AorInM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, out=ALUOut, zr=zr, ng=ng);
+    
+    // if zero from ALU, jump when JMP JLE JGE JEQ ll have j2 on
+    And(a=zr, b=instruction[1], out=jmp2);
+    And(a=ng, b=instruction[2], out=jmp3); 
+    Or(a=zr, b=ng, out=zrORng);
+    Not(in=zrORng, out=GreaterThanZero);
+    And(a=GreaterThanZero, b=instruction[0], out=jmp1);
+    Or(a=jmp1, b=jmp2, out=jmp1ORjmp2);
+    Or(a=jmp1ORjmp2, b=jmp3, out=jmp4);
+    // Check that it is a C instruction
+    And(a=jmp4, b=instruction[15], out=jmp);
+
+
+    // Handle reset operation and output PC value
+    // TODO: find out what to set inc to
+    PC(in=ARegOut, load=jmp, inc=true, reset=reset, out[0..14]=pc);
+
 }

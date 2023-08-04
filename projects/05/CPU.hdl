@@ -47,7 +47,7 @@ CHIP CPU {
 
    
     // Handle instruction
-    Not(in=instruction[15], out=NotInstructionControlBit);
+    Not(in=instruction[15], out=NotInstructionControlBit)
     // NOT control bit OR   control bit AND not ALU Out
     // Not(in=instruction[5], out=notAReg); // instruction[5] is A register write
     // And(a=instruction[15], b=notAReg, out=cbitANDnotAReg);

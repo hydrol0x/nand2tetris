@@ -1,5 +1,6 @@
 from pathlib import Path
 from types import CommandTypes as T
+import vm_asm_cmds as asm
 
 class Parser():
     def __init__(self, file_path):
@@ -68,5 +69,26 @@ class Parser():
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.file.close()
+
+class CodeWriter():
+    def __init__(self, input_file_path, output_file_path):
+        self.in_path = input_file_path
+        self.out_path = output_file_path
+    
+    def __enter__(self):
+        self.asm_program = open(self.out_path, "w")
+
+    def generate_asm(self):
+        with Parser(self.in_path) as parser:
+            ctype = parser.command_type()
+            match ctype:
+                case T.POP: # pop into local only for now
+                    code = [line+'\n' for line in asm.pop.split('\n')]
+                    self.asm_program.writelines(code)
+                case T.PUSH:
+                    pass
+
+    def __exit__(self,exc_type_exc_value,traceback):
+        self.asm_program.close()
 
 path = r"C:\Users\ryabinkyj\Documents\programming other\nand2tetris\projects\07\MemoryAccess\BasicTest\BasicTest.vm"

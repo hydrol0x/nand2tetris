@@ -1,2 +1,3 @@
 *.dat
 *.hack
+__pycache__/

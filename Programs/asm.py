@@ -91,7 +91,12 @@ def process_c_instruction(line:str):
             a_bit = "1"
         case "D+A":
             comp_bits = "000010"
+        case "A+D":
+            comp_bits =  "000010"
         case "D+M":
+            comp_bits = "000010"
+            a_bit = "1"
+        case "M+D":
             comp_bits = "000010"
             a_bit = "1"
         case "D-A":
